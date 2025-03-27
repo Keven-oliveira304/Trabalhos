@@ -6,6 +6,7 @@
 #define TAM_TABULEIRO 10
 #define TAM_NAVIO 3
 #define NUM_NAVIOS 4
+#define TAM_HABILIDADE 5
 
 // Função para inicializar o tabuleiro com água (0)
 void inicializarTabuleiro(int tabuleiro[TAM_TABULEIRO][TAM_TABULEIRO]) {
@@ -67,6 +68,33 @@ void posicionarNavio(int tabuleiro[TAM_TABULEIRO][TAM_TABULEIRO], int diagonal) 
     }
 }
 
+// Função para aplicar habilidades no tabuleiro
+void aplicarHabilidade(int tabuleiro[TAM_TABULEIRO][TAM_TABULEIRO], int origemX, int origemY, int tipo) {
+    int efeito[TAM_HABILIDADE][TAM_HABILIDADE] = {0};
+    
+    for (int i = 0; i < TAM_HABILIDADE; i++) {
+        for (int j = 0; j < TAM_HABILIDADE; j++) {
+            if (tipo == 1 && j >= (TAM_HABILIDADE / 2 - i) && j <= (TAM_HABILIDADE / 2 + i)) {
+                efeito[i][j] = 1; // Cone
+            } else if (tipo == 2 && (i == TAM_HABILIDADE / 2 || j == TAM_HABILIDADE / 2)) {
+                efeito[i][j] = 1; // Cruz
+            } else if (tipo == 3 && abs(i - TAM_HABILIDADE / 2) + abs(j - TAM_HABILIDADE / 2) <= TAM_HABILIDADE / 2) {
+                efeito[i][j] = 1; // Octaedro
+            }
+        }
+    }
+
+    for (int i = 0; i < TAM_HABILIDADE; i++) {
+        for (int j = 0; j < TAM_HABILIDADE; j++) {
+            int x = origemX + i - TAM_HABILIDADE / 2;
+            int y = origemY + j - TAM_HABILIDADE / 2;
+            if (x >= 0 && x < TAM_TABULEIRO && y >= 0 && y < TAM_TABULEIRO && efeito[i][j] == 1) {
+                tabuleiro[x][y] = 5;
+            }
+        }
+    }
+}
+
 int main() {
     srand(time(NULL));
     int tabuleiro[TAM_TABULEIRO][TAM_TABULEIRO];
@@ -83,9 +111,15 @@ int main() {
         posicionarNavio(tabuleiro, 1);
     }
     
+    // Aplicar habilidades
+    aplicarHabilidade(tabuleiro, 4, 4, 1); // Cone
+    aplicarHabilidade(tabuleiro, 6, 6, 2); // Cruz
+    aplicarHabilidade(tabuleiro, 2, 2, 3); // Octaedro
+    
     // Exibir o tabuleiro
     printf("Tabuleiro de Batalha Naval:\n\n");
     exibirTabuleiro(tabuleiro);
     
     return 0;
 }
+
